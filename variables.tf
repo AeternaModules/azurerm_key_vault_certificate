@@ -81,5 +81,57 @@ EOT
       }))
     }))
   }))
+  validation {
+    condition = alltrue([
+      for k, v in var.key_vault_certificates : (
+        v.certificate == null || (length(v.certificate.contents) > 0)
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.key_vault_certificates : (
+        v.certificate_policy == null || (v.certificate_policy.x509_certificate_properties == null || (v.certificate_policy.x509_certificate_properties.extended_key_usage == null || (length(v.certificate_policy.x509_certificate_properties.extended_key_usage) > 0)))
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  # --- Unconfirmed validation candidates, derived from azurerm_key_vault_certificate's provider source ---
+  # Not auto-enabled: either a bespoke provider validator we can't safely translate,
+  # or a path that crosses a list-typed block (needs its own for_each wrapping).
+  # Review, translate into a real validation{} block above, and delete once confirmed.
+  # path: name
+  #   source:    [from keyvault.ValidateNestedItemName] !ok
+  # path: name
+  #   condition: length(value) <= 127
+  #   message:   [from keyvault.ValidateNestedItemName: invalid when len(value) > 127]
+  #   source:    [from keyvault.ValidateNestedItemName: invalid when len(value) > 127]
+  # path: name
+  #   source:    [from keyvault.ValidateNestedItemName] !regexp.MustCompile(`^[0-9a-zA-Z-]+$`).MatchString(v.(string))
+  # path: certificate_policy.key_properties.curve
+  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: certificate_policy.key_properties.key_size
+  #   source:    validation.IntInSlice(...) - no translation rule yet, add one
+  # path: certificate_policy.key_properties.key_type
+  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: certificate_policy.lifetime_action.action.action_type
+  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: certificate_policy.x509_certificate_properties.key_usage[*]
+  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: tags
+  #   condition: length(value) <= 50
+  #   message:   [from tags.Validate: invalid when len(value) > 50]
+  #   source:    [from tags.Validate: invalid when len(value) > 50]
+  # path: tags
+  #   condition: length(value) <= 512
+  #   message:   [from tags.Validate: invalid when len(value) > 512]
+  #   source:    [from tags.Validate: invalid when len(value) > 512]
+  # path: tags
+  #   source:    [from tags.Validate] err != nil
+  # path: tags
+  #   condition: length(value) <= 256
+  #   message:   [from tags.Validate: invalid when len(value) > 256]
+  #   source:    [from tags.Validate: invalid when len(value) > 256]
 }
 
