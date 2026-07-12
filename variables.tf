@@ -56,7 +56,7 @@ EOT
         key_type   = string
         reuse_key  = bool
       })
-      lifetime_action = optional(object({
+      lifetime_action = optional(list(object({
         action = object({
           action_type = string
         })
@@ -64,7 +64,7 @@ EOT
           days_before_expiry  = optional(number)
           lifetime_percentage = optional(number)
         })
-      }))
+      })))
       secret_properties = object({
         content_type = string
       })
@@ -81,22 +81,6 @@ EOT
       }))
     }))
   }))
-  validation {
-    condition = alltrue([
-      for k, v in var.key_vault_certificates : (
-        v.certificate == null || (length(v.certificate.contents) > 0)
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.key_vault_certificates : (
-        v.certificate_policy == null || (v.certificate_policy.x509_certificate_properties == null || (v.certificate_policy.x509_certificate_properties.extended_key_usage == null || (length(v.certificate_policy.x509_certificate_properties.extended_key_usage) > 0)))
-      )
-    ])
-    error_message = "must not be empty"
-  }
   # --- Unconfirmed validation candidates, derived from azurerm_key_vault_certificate's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
@@ -109,6 +93,9 @@ EOT
   #   source:    [from keyvault.ValidateNestedItemName: invalid when len(value) > 127]
   # path: name
   #   source:    [from keyvault.ValidateNestedItemName] !regexp.MustCompile(`^[0-9a-zA-Z-]+$`).MatchString(v.(string))
+  # path: certificate.contents
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: certificate_policy.key_properties.curve
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
   # path: certificate_policy.key_properties.key_size
@@ -117,6 +104,9 @@ EOT
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
   # path: certificate_policy.lifetime_action.action.action_type
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: certificate_policy.x509_certificate_properties.extended_key_usage[*]
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: certificate_policy.x509_certificate_properties.key_usage[*]
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
   # path: tags

@@ -27,7 +27,7 @@ resource "azurerm_key_vault_certificate" "key_vault_certificates" {
         reuse_key  = certificate_policy.value.key_properties.reuse_key
       }
       dynamic "lifetime_action" {
-        for_each = certificate_policy.value.lifetime_action != null ? [certificate_policy.value.lifetime_action] : []
+        for_each = certificate_policy.value.lifetime_action != null ? certificate_policy.value.lifetime_action : []
         content {
           action {
             action_type = lifetime_action.value.action.action_type
