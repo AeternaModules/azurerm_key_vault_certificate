@@ -93,6 +93,10 @@ EOT
   #   source:    [from keyvault.ValidateNestedItemName: invalid when len(value) > 127]
   # path: name
   #   source:    [from keyvault.ValidateNestedItemName] !regexp.MustCompile(`^[0-9a-zA-Z-]+$`).MatchString(v.(string))
+  # path: key_vault_id
+  #   source:    [from validationFunctionForResourceID] !ok
+  # path: key_vault_id
+  #   source:    [from validationFunctionForResourceID] err != nil
   # path: certificate.contents
   #   condition: length(value) > 0
   #   message:   must not be empty
