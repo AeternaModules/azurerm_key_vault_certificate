@@ -4,7 +4,7 @@ output "key_vault_certificates_id" {
 }
 output "key_vault_certificates_certificate" {
   description = "Map of certificate values across all key_vault_certificates, keyed the same as var.key_vault_certificates"
-  value       = { for k, v in azurerm_key_vault_certificate.key_vault_certificates : k => v.certificate if v.certificate != null && length(v.certificate) > 0 }
+  value       = { for k, v in azurerm_key_vault_certificate.key_vault_certificates : k => one(v.certificate) if v.certificate != null && length(v.certificate) > 0 }
   sensitive   = true
 }
 output "key_vault_certificates_certificate_attribute" {
@@ -21,7 +21,7 @@ output "key_vault_certificates_certificate_data_base64" {
 }
 output "key_vault_certificates_certificate_policy" {
   description = "Map of certificate_policy values across all key_vault_certificates, keyed the same as var.key_vault_certificates"
-  value       = { for k, v in azurerm_key_vault_certificate.key_vault_certificates : k => v.certificate_policy if v.certificate_policy != null && length(v.certificate_policy) > 0 }
+  value       = { for k, v in azurerm_key_vault_certificate.key_vault_certificates : k => one(v.certificate_policy) if v.certificate_policy != null && length(v.certificate_policy) > 0 }
 }
 output "key_vault_certificates_key_vault_id" {
   description = "Map of key_vault_id values across all key_vault_certificates, keyed the same as var.key_vault_certificates"
